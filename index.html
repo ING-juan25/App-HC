@@ -4,43 +4,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Terneros</title>
+    <title>Gestión de Ganado</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <h1>Gestión de Terneros</h1>
+        <h1>Gestión de Ganado</h1>
         <div class="form-group">
-            <label for="nombre">Nombre del Ternero</label>
-            <input type="text" id="nombre" placeholder="Ingrese el nombre del ternero">
+            <label for="nombre">Nombre del animal:</label>
+            <input type="text" id="nombre" class="form-control">
         </div>
         <div class="form-group">
-            <label for="kilaje">Kilaje del Ternero</label>
-            <input type="number" id="kilaje" placeholder="Ingrese el kilaje del ternero">
+            <label for="kilaje">Kilaje del animal:</label>
+            <input type="number" id="kilaje" class="form-control">
         </div>
         <div class="form-group">
-            <button id="btnAgregarTernero">Agregar Ternero</button>
+            <label for="categoria">Categoría:</label>
+            <select id="categoria" class="form-control">
+                <option value="vaca">Vaca</option>
+                <option value="ternero">Ternero</option>
+            </select>
         </div>
-        <div class="results">
-            <h2>Terneros Registrados</h2>
-            <div id="listaTerneros" class="scrollable-container"></div>
-            <p id="sumaKilajes">Suma total de kilajes: 0 kg</p>
-            <div class="form-group">
-                <label for="multiplicador">Precio Kg</label>
-                <input type="number" id="multiplicador" placeholder="Ingrese el número para multiplicar">
+        <div class="form-group">
+            <button id="btnAgregarAnimal" class="btn">Agregar Animal</button>
             </div>
             <div class="form-group">
-                <button id="btnMultiplicar">Multiplicar</button>
+            <label for="precioVaca">Precio por kg (Vaca):</label>
+            <input type="number" id="precioVaca" step="0.01" class="form-control">
             </div>
-            <p id="resultadoMultiplicado">Resultado de la multiplicación: 0 kg</p>
-            <p id="pesaPromedio">Pesa promedio: 0 kg por ternero</p>
+        <div class="form-group">
+            <label for="precioTernero">Precio por kg (Ternero):</label>
+            <input type="number" id="precioTernero" step="0.01" class="form-control">
         </div>
         <div class="form-group">
-            <button id="btnGenerarExcel">Generar Excel</button>
+            <button id="btnGenerarExcel" class="btn">Generar Excel</button>
+            </div>
+            <div id="resultados">
+                <h2>Resultados</h2>
+                <div id="vacasResultados">
+                    <h3>Vacas</h3>
+                    <div id="listaVacas"></div>
+                    <p id="sumaKilajesVacas">Suma total de kilajes: 0 kg</p>
+                    <p id="pesaPromedioVacas">Pesa promedio: 0 kg por vaca</p>
+                    <p id="costoTotalVacas">Costo total: 0 COP</p>
+                </div>
+                <div id="ternerosResultados">
+                    <h3>Terneros</h3>
+                    <div id="listaTerneros"></div>
+                    <p id="sumaKilajesTerneros">Suma total de kilajes: 0 kg</p>
+                    <p id="pesaPromedioTerneros">Pesa promedio: 0 kg por ternero</p>
+                    <p id="costoTotalTerneros">Costo total: 0 COP</p>
+                </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="/app-HC.js"></script>
 </body>
 

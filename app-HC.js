@@ -1,54 +1,59 @@
-let terneros = [];
-let sumaKilajes = 0;
+let animales = [];
+let sumaKilajesVacas = 0;
+let sumaKilajesTerneros = 0;
 let nextId = 1;
 
-// Cargar datos del localStorage al iniciar la página
 document.addEventListener("DOMContentLoaded", function () {
   cargarDatosDesdeLocalStorage();
   actualizarUI();
 
   document
-    .getElementById("btnAgregarTernero")
-    .addEventListener("click", agregarTernero);
-  document
-    .getElementById("btnMultiplicar")
-    .addEventListener("click", multiplicarKilajes);
+    .getElementById("btnAgregarAnimal")
+    .addEventListener("click", agregarAnimal);
   document
     .getElementById("btnGenerarExcel")
     .addEventListener("click", generarExcel);
+  document
+    .getElementById("precioVaca")
+    .addEventListener("input", actualizarCostos);
+  document
+    .getElementById("precioTernero")
+    .addEventListener("input", actualizarCostos);
 });
 
 function cargarDatosDesdeLocalStorage() {
-  const ternerosGuardados = JSON.parse(localStorage.getItem("terneros"));
-  if (ternerosGuardados) {
-    terneros = ternerosGuardados;
+  const animalesGuardados = JSON.parse(localStorage.getItem("animales"));
+  if (animalesGuardados) {
+    animales = animalesGuardados;
     nextId = obtenerUltimoId() + 1;
     calcularSumaKilajes();
   }
 }
 
 function guardarDatosEnLocalStorage() {
-  localStorage.setItem("terneros", JSON.stringify(terneros));
+  localStorage.setItem("animales", JSON.stringify(animales));
 }
 
 function obtenerUltimoId() {
-  if (terneros.length === 0) {
+  if (animales.length === 0) {
     return 0;
   }
-  return terneros[terneros.length - 1].id;
+  return animales[animales.length - 1].id;
 }
 
-function agregarTernero() {
+function agregarAnimal() {
   const nombre = document.getElementById("nombre").value;
   const kilaje = parseFloat(document.getElementById("kilaje").value);
+  const categoria = document.getElementById("categoria").value;
 
   if (nombre && !isNaN(kilaje) && kilaje > 0) {
-    const ternero = {
+    const animal = {
       id: nextId++,
       nombre: nombre,
       kilaje: kilaje,
+      categoria: categoria,
     };
-    terneros.push(ternero);
+    animales.push(animal);
     guardarDatosEnLocalStorage();
     calcularSumaKilajes();
     actualizarUI();
@@ -60,131 +65,121 @@ function agregarTernero() {
 }
 
 function calcularSumaKilajes() {
-  sumaKilajes = terneros.reduce((suma, ternero) => suma + ternero.kilaje, 0);
+  sumaKilajesVacas = 0;
+  sumaKilajesTerneros = 0;
+  animales.forEach((animal) => {
+    if (animal.categoria === "vaca") {
+      sumaKilajesVacas += animal.kilaje;
+    } else if (animal.categoria === "ternero") {
+      sumaKilajesTerneros += animal.kilaje;
+    }
+  });
 }
 
 function actualizarUI() {
+  const listaVacas = document.getElementById("listaVacas");
   const listaTerneros = document.getElementById("listaTerneros");
+  listaVacas.innerHTML = "";
   listaTerneros.innerHTML = "";
-  terneros.forEach((ternero, index) => {
+
+  animales.forEach((animal) => {
     const div = document.createElement("div");
-    div.className = "ternero";
-    div.innerHTML = `<strong>ID:</strong> ${ternero.id} <br> <strong>Nombre:</strong> ${ternero.nombre} <br> <strong>Kilaje:</strong> ${ternero.kilaje} kg`;
-
-    // Botones de Editar y Eliminar
+    div.className = "animal";
+    div.innerHTML = `<strong>ID:</strong> ${animal.id} <br> <strong>Nombre:</strong> ${animal.nombre} <br> <strong>Kilaje:</strong> ${animal.kilaje} kg <br>`;
     const btnEditar = document.createElement("button");
-    btnEditar.textContent = "Editar";
     btnEditar.className = "btn-editar";
-    btnEditar.addEventListener("click", () => abrirModalEditar(ternero.id));
-
-    const btnEliminar = document.createElement("button");
-    btnEliminar.textContent = "Eliminar";
-    btnEliminar.className = "btn-eliminar";
-    btnEliminar.addEventListener("click", () => eliminarTernero(ternero.id));
-
+    btnEditar.innerText = "Editar";
+    btnEditar.addEventListener("click", () => abrirModalEditar(animal.id));
     div.appendChild(btnEditar);
+    const btnEliminar = document.createElement("button");
+    btnEliminar.className = "btn-eliminar";
+    btnEliminar.innerText = "Eliminar";
+    btnEliminar.addEventListener("click", () => eliminarAnimal(animal.id));
     div.appendChild(btnEliminar);
 
-    listaTerneros.appendChild(div);
+    if (animal.categoria === "vaca") {
+      listaVacas.appendChild(div);
+    } else if (animal.categoria === "ternero") {
+      listaTerneros.appendChild(div);
+    }
   });
 
   document.getElementById(
-    "sumaKilajes"
-  ).textContent = `Suma total de kilajes: ${sumaKilajes} kg`;
-
-  const pesaPromedio = terneros.length > 0 ? sumaKilajes / terneros.length : 0;
+    "sumaKilajesVacas"
+  ).textContent = `Suma total de kilajes: ${sumaKilajesVacas} kg`;
+  document.getElementById("pesaPromedioVacas").textContent = `Pesa promedio: ${(
+    sumaKilajesVacas / animales.filter((a) => a.categoria === "vaca").length ||
+    0
+  ).toFixed(2)} kg por vaca`;
   document.getElementById(
-    "pesaPromedio"
-  ).textContent = `Pesa promedio: ${pesaPromedio.toFixed(2)} kg por ternero`;
+    "sumaKilajesTerneros"
+  ).textContent = `Suma total de kilajes: ${sumaKilajesTerneros} kg`;
+  document.getElementById(
+    "pesaPromedioTerneros"
+  ).textContent = `Pesa promedio: ${(
+    sumaKilajesTerneros /
+      animales.filter((a) => a.categoria === "ternero").length || 0
+  ).toFixed(2)} kg por ternero`;
+
+  actualizarCostos();
+}
+
+function actualizarCostos() {
+  const precioVaca =
+    parseFloat(document.getElementById("precioVaca").value) || 0;
+  const precioTernero =
+    parseFloat(document.getElementById("precioTernero").value) || 0;
+
+  const costoTotalVacas = precioVaca * sumaKilajesVacas;
+  const costoTotalTerneros = precioTernero * sumaKilajesTerneros;
+
+  document.getElementById(
+    "costoTotalVacas"
+  ).textContent = `Costo total: $${costoTotalVacas.toFixed(2)} COP`;
+  document.getElementById(
+    "costoTotalTerneros"
+  ).textContent = `Costo total: $${costoTotalTerneros.toFixed(2)} COP`;
 }
 
 function abrirModalEditar(id) {
-  const ternero = terneros.find((t) => t.id === id);
-  if (ternero) {
-    const nuevoNombre = prompt(
-      "Ingrese el nuevo nombre del ternero:",
-      ternero.nombre
-    );
-    const nuevoKilaje = parseFloat(
-      prompt("Ingrese el nuevo kilaje del ternero:", ternero.kilaje)
-    );
+  const animal = animales.find((a) => a.id === id);
+  if (!animal) return;
 
-    if (nuevoNombre && !isNaN(nuevoKilaje) && nuevoKilaje > 0) {
-      ternero.nombre = nuevoNombre;
-      ternero.kilaje = nuevoKilaje;
-      guardarDatosEnLocalStorage();
-      calcularSumaKilajes();
-      actualizarUI();
-    } else {
-      alert("Por favor, ingrese un nombre y un kilaje válido.");
-    }
-  } else {
-    alert("No se encontró el ternero para editar.");
-  }
-}
+  const nombre = prompt("Editar nombre:", animal.nombre);
+  const kilaje = parseFloat(prompt("Editar kilaje (kg):", animal.kilaje));
 
-function eliminarTernero(id) {
-  const indice = terneros.findIndex((t) => t.id === id);
-  if (indice !== -1) {
-    terneros.splice(indice, 1);
+  if (nombre && !isNaN(kilaje) && kilaje > 0) {
+    animal.nombre = nombre;
+    animal.kilaje = kilaje;
     guardarDatosEnLocalStorage();
     calcularSumaKilajes();
     actualizarUI();
   } else {
-    alert("No se encontró el ternero para eliminar.");
+    alert("Por favor, ingrese un nombre y un kilaje válido.");
   }
 }
 
-function multiplicarKilajes() {
-  const multiplicador = parseFloat(
-    document.getElementById("multiplicador").value
-  );
-  if (!isNaN(multiplicador) && multiplicador > 0) {
-    const costoTotal = sumaKilajes * multiplicador;
-    document.getElementById(
-      "resultadoMultiplicado"
-    ).textContent = `Costo total: $${new Intl.NumberFormat("es-CO").format(
-      costoTotal.toFixed(2)
-    )} COP`;
-
-    // Actualizar datos en el Excel
-    generarExcel();
-  } else {
-    alert("Por favor, ingrese un multiplicador válido.");
-  }
+function eliminarAnimal(id) {
+  animales = animales.filter((a) => a.id !== id);
+  guardarDatosEnLocalStorage();
+  calcularSumaKilajes();
+  actualizarUI();
 }
 
 function generarExcel() {
   const wb = XLSX.utils.book_new();
-  const ws_data = [["ID", "Nombre", "Kilaje"]];
+  const vacas = animales.filter((a) => a.categoria === "vaca");
+  const terneros = animales.filter((a) => a.categoria === "ternero");
 
-  terneros.forEach((ternero) => {
-    ws_data.push([ternero.id, ternero.nombre, ternero.kilaje]);
-  });
+  const vacasSheet = XLSX.utils.json_to_sheet(vacas);
+  const ternerosSheet = XLSX.utils.json_to_sheet(terneros);
 
-  // Agregar fila con suma total de kilajes y pesa promedio
-  ws_data.push(["", "Suma total de kilajes:", sumaKilajes.toFixed(2)]);
-  ws_data.push([
-    "",
-    "Pesa promedio:",
-    (sumaKilajes / terneros.length).toFixed(2),
-  ]);
+  XLSX.utils.book_append_sheet(wb, vacasSheet, "Vacas");
+  XLSX.utils.book_append_sheet(wb, ternerosSheet, "Terneros");
 
-  // Calcular y agregar fila con costo total en pesos colombianos
-  const multiplicador = parseFloat(
-    document.getElementById("multiplicador").value
-  );
-  if (!isNaN(multiplicador) && multiplicador > 0) {
-    const costoTotal = sumaKilajes * multiplicador;
-    ws_data.push([
-      "",
-      "Costo total:",
-      `$${new Intl.NumberFormat("es-CO").format(costoTotal.toFixed(2))} COP`,
-    ]);
+  try {
+    XLSX.writeFile(wb, "Ganado.xlsx");
+  } catch (e) {
+    console.error("Error al generar el archivo Excel:", e);
   }
-
-  const ws = XLSX.utils.aoa_to_sheet(ws_data);
-  XLSX.utils.book_append_sheet(wb, ws, "Terneros");
-
-  XLSX.writeFile(wb, "terneros.xlsx");
 }
