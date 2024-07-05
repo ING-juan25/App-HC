@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Terneros</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Gestión de Terneros</h1>
+        <div class="form-group">
+            <label for="nombre">Nombre del Ternero</label>
+            <input type="text" id="nombre" placeholder="Ingrese el nombre del ternero">
+        </div>
+        <div class="form-group">
+            <label for="kilaje">Kilaje del Ternero</label>
+            <input type="number" id="kilaje" placeholder="Ingrese el kilaje del ternero">
+        </div>
+        <div class="form-group">
+            <button id="btnAgregarTernero">Agregar Ternero</button>
+        </div>
+        <div class="results">
+            <h2>Terneros Registrados</h2>
+            <div id="listaTerneros" class="scrollable-container"></div>
+            <p id="sumaKilajes">Suma total de kilajes: 0 kg</p>
+            <div class="form-group">
+                <label for="multiplicador">Precio Kg</label>
+                <input type="number" id="multiplicador" placeholder="Ingrese el número para multiplicar">
+            </div>
+            <div class="form-group">
+                <button id="btnMultiplicar">Multiplicar</button>
+            </div>
+            <p id="resultadoMultiplicado">Resultado de la multiplicación: 0 kg</p>
+            <p id="pesaPromedio">Pesa promedio: 0 kg por ternero</p>
+        </div>
+        <div class="form-group">
+            <button id="btnGenerarExcel">Generar Excel</button>
+        </div>
+    </div>
+    <script src="/app-HC.js"></script>
+</body>
+
+</html>
